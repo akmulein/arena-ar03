@@ -26,17 +26,15 @@ TEDS; также TEDS-struct, Cell F1 и Numeric accuracy. `data/` в Git не �
 | `evaluator/` | реализация метрик |
 | `case/` | исходный кейс и CLI |
 | `arena-case/` | интеграция с Arena |
-| `scripts/` | подготовка данных |
+| `scripts/` | подготовка данных и setup Arena |
 | `tests/` | тесты |
 | `docs/` | документация |
 | `results/` | итоговые результаты и проверки |
 | `reports/` | локальные диагностические материалы, исключённые из Git |
 | `data/` | локальный датасет, вне Git |
 
-## Установка и запуск
+## A. Baseline без Arena
 
-Локальный baseline проверен на macOS Apple Silicon, Python 3.13.7 и Tesseract 5.5.3.
-Docker-интеграция Arena проверена с Tesseract 5.3.0.
 
 ```bash
 brew install tesseract
@@ -45,23 +43,36 @@ source .venv/bin/activate
 pip install -r requirements.txt
 ```
 
-```bash
-mkdir -p data/raw
-python -m scripts.download
-python -m scripts.prepare --seed 42
-python -m scripts.audit
-```
+Запуск и проверка:
 
 ```bash
-python -m pytest -q
 python -m solution.cli --input page.jpg --output result.json --html result.html --visualization result.jpg
-python -m case.metric.score result.json truth.json
+python -m pytest -q
 ```
 
-### Arena
+## B. Интеграция с Arena
 
-Разместите `arena-case/` как `cases/ar-03/` в отдельном клоне DeepPavlov Arena.
-Подробные инструкции — [arena-case/README.md](arena-case/README.md).
+Arena скачивается скриптом как внешняя зависимость; `arena-case/` подключается
+автоматически, вручную переносить не нужно. Docker-интеграция проверена с Tesseract 5.3.0.
+Для сценария B нужны `git`, `uv` и запущенный Docker.
+
+```bash
+git clone https://github.com/akmulein/arena-ar03.git
+cd arena-ar03
+AR3_ROOT=$PWD
+bash scripts/setup_arena.sh
+cd "$HOME/.cache/ar03-arena"
+uv run python -m evaluator.smoke
+uv run python -m cases.ar-03.container_check --train "$AR3_ROOT/data/train"
+```
+
+Скрипт [`scripts/setup_arena.sh`](scripts/setup_arena.sh) по умолчанию клонирует
+Arena в `$HOME/.cache/ar03-arena`, закрепляет commit
+`669d9ed31840bfc46be10c8c63ccd8c3cd1f76ab`, выполняет `uv sync --frozen` и собирает
+образы `ar03-runner:local` и `ar03-metric:local`, если их нет. Для контейнерной
+проверки нужен локальный train-датасет в `data/train`.
+
+API submit → score и эволюция ещё не проверены.
 
 ## Результаты baseline
 
