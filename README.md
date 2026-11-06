@@ -3,6 +3,8 @@
 Учебный проект ИТМО × DeepPavlov (задание B): изображение страницы → структурированная
 таблица (JSON/HTML) со строками, столбцами, объединёнными ячейками и текстом.
 
+Обзор подходов к распознаванию таблиц — [docs/domain.md](docs/domain.md).
+
 ## Baseline и Arena
 
 - `solution/` — baseline: OpenCV (предобработка, детекция, структура) + Tesseract (OCR), CPU.
@@ -27,12 +29,14 @@ TEDS; также TEDS-struct, Cell F1 и Numeric accuracy. `data/` в Git не �
 | `scripts/` | подготовка данных |
 | `tests/` | тесты |
 | `docs/` | документация |
-| `reports/` | сырые результаты диагностики |
+| `results/` | итоговые результаты и проверки |
+| `reports/` | локальные диагностические материалы, исключённые из Git |
 | `data/` | локальный датасет, вне Git |
 
 ## Установка и запуск
 
-macOS Apple Silicon; проверено на Python 3.13.7 и Tesseract 5.5.3.
+Локальный baseline проверен на macOS Apple Silicon, Python 3.13.7 и Tesseract 5.5.3.
+Docker-интеграция Arena проверена с Tesseract 5.3.0.
 
 ```bash
 brew install tesseract
@@ -54,6 +58,11 @@ python -m solution.cli --input page.jpg --output result.json --html result.html 
 python -m case.metric.score result.json truth.json
 ```
 
+### Arena
+
+Разместите `arena-case/` как `cases/ar-03/` в отдельном клоне DeepPavlov Arena.
+Подробные инструкции — [arena-case/README.md](arena-case/README.md).
+
 ## Результаты baseline
 
 На 200 train-страницах, использованных для диагностики и исправлений:
@@ -67,11 +76,15 @@ python -m case.metric.score result.json truth.json
 
 Это диагностическая выборка; не независимая оценка и не результат public/private.
 
-## Статус ЧП1
+## Статус
 
-Готова техническая база: baseline, evaluator, smoke-проверки, DockerRunner,
-замороженная метрика (`freeze/verify`, 10 файлов). Подробности —
-[отчёт ЧП1](results/cp1/README.md), роли и устройство Arena — [docs/arena.md](docs/arena.md).
+### ЧП1
 
-Осталось: проверить score через API submit, подготовить и запустить реальную
-эволюционную кампанию.
+Готовы baseline, метрики, данные, Docker-интеграция, smoke-тесты и `freeze/verify`
+(10 файлов). Не завершены API submit → score и подготовка реальной кампании.
+Подробности — [отчёт ЧП1](results/cp1/README.md), роли и устройство Arena —
+[docs/arena.md](docs/arena.md).
+
+### ЧП2
+
+Запуск эволюции, журнал кандидатов, кривая качества и родословная.
