@@ -1,0 +1,35 @@
+{
+  "format_version": 1,
+  "files": {
+    "metric.json": {
+      "executable": false
+    },
+    "score.py": {
+      "executable": false
+    },
+    "vendor/evaluator/LICENSE": {
+      "executable": false
+    },
+    "vendor/evaluator/NOTICE": {
+      "executable": false
+    },
+    "vendor/evaluator/__init__.py": {
+      "executable": false
+    },
+    "vendor/evaluator/metrics.py": {
+      "executable": false
+    },
+    "vendor/evaluator/teds.py": {
+      "executable": false
+    },
+    "vendor/solution/__init__.py": {
+      "executable": false
+    },
+    "vendor/solution/postprocess.py": {
+      "executable": false
+    },
+    "vendor/solution/schema.py": {
+      "executable": false
+    }
+  }
+}

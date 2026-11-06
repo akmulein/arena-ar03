@@ -1,0 +1,5 @@
+TEDS implementation derived from PubTabNet src/metric.py.
+Copyright 2020 IBM. Author: peter.zhong@au1.ibm.com.
+Source: https://github.com/ibm-aur-nlp/PubTabNet/blob/master/src/metric.py
+Changes: removed batch/parallel API; equivalent RapidFuzz Levenshtein;
+PEP 8 formatting and import ordering. See docs/adr/0001-metrics.md.

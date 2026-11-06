@@ -1,0 +1,13 @@
+{
+  "kind": "command",
+  "direction": "maximize",
+  "version": "ar03-existing-teds-v1",
+  "command": {
+    "argv": [
+      "python",
+      "score.py"
+    ],
+    "uses_model": false,
+    "timeout_seconds": 300
+  }
+}
