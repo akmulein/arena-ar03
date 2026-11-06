@@ -1,12 +1,65 @@
+# Local dataset
+/data/
+
+# Raw experiments and diagnostics
+/reports/
+
+# Virtual environments
 .venv/
+venv/
+env/
+ENV/
+
+# Python caches and build artifacts
 __pycache__/
+*.py[cod]
+*$py.class
 .pytest_cache/
-.DS_Store
-data/
-reports/predictions/
-*.pyc
-*.tar
-*.tar.gz
-*.zip
+.ruff_cache/
+.mypy_cache/
+.pyright/
+.hypothesis/
+.coverage
+.coverage.*
+htmlcov/
+*.egg-info/
+.eggs/
+build/
+dist/
+
+# Logs
+*.log
+logs/
+
+# Secrets
 .env
 .env.*
+!.env.example
+!*.env.example
+**/operator.env
+**/secrets/
+**/token
+**/token.*
+*.pem
+*.key
+
+# Temporary files
+/tmp/
+*.tmp
+*.bak
+*.orig
+*.rej
+*.swp
+*~
+.DS_Store
+.idea/
+.vscode/
+
+# Arena runtime state
+**/campaigns/*/state/
+**/campaigns/*/assets/
+**/campaigns/*/logs/
+**/campaigns/*/search/
+**/campaigns/*/worktrees/
+**/campaigns/*/runs/
+**/campaigns/*/runtime/

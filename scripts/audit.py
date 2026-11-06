@@ -5,7 +5,7 @@ from pathlib import Path
 
 import cv2
 
-from scripts.prepare import SPLITS
+from scripts.prepare import EXCLUDED_PAGES, SPLITS
 from solution.schema import validate
 
 
@@ -30,8 +30,12 @@ def audit(root=Path("data")):
         ]
         assert len(records) == target, (split, len(records), target)
         assert len({r["id"] for r in records}) == target
-        assert len(list((root / split / "images").glob("*.jpg"))) == target
-        assert len(list((root / split / "truth").glob("*.json"))) == target
+        active_ids = {r["id"] for r in records}
+        assert not active_ids & EXCLUDED_PAGES
+        for folder, pattern in (("images", "*.jpg"), ("truth", "*.json")):
+            stored_ids = {p.stem for p in (root / split / folder).glob(pattern)}
+            assert active_ids <= stored_ids
+            assert stored_ids - active_ids <= EXCLUDED_PAGES
         documents[split] = {r["document"] for r in records}
         fingerprint = hashlib.sha256()
         for record in records:

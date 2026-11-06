@@ -18,10 +18,13 @@ from solution.schema import validate
 ROOT = Path("data")
 BASE = "https://huggingface.co/datasets/bsmock/pubtables-1m/resolve/35b1c097807e0b07ec5313879b85956b7b3890db/"
 SPLITS = {
-    "train": ("Train_Part1", 16000),
+    "train": ("Train_Part1", 15998),
     "public": ("Val", 2000),
     "private": ("Test", 2000),
 }
+
+# Retained on disk, excluded from active manifests by the Arena input limit.
+EXCLUDED_PAGES = {"PMC3287911_1", "PMC2727000_2"}
 
 
 def check_storage():
@@ -163,6 +166,7 @@ def prepare(split, db, seed):
                     not member.isfile()
                     or page_id not in allowed
                     or page_id in selected
+                    or page_id in EXCLUDED_PAGES
                 ):
                     continue
                 row = db.execute(
