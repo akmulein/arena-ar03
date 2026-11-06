@@ -1,101 +1,104 @@
 # AR-03 — распознавание сканов таблиц
 
-Учебный проект ИТМО × DeepPavlov (задание B): изображение страницы → структурированная
-таблица (JSON/HTML) со строками, столбцами, объединёнными ячейками и текстом.
+Учебный проект ИТМО × DeepPavlov, задание B. Цель — построить систему извлечения таблиц из изображений документов и улучшить её с помощью эволюционного поиска в DeepPavlov Arena.
 
-Обзор подходов к распознаванию таблиц — [docs/domain.md](docs/domain.md).
+**Вход:** изображение страницы с таблицами.  
+**Выход:** структурированный JSON/HTML со строками, столбцами, объединёнными ячейками и текстом.
 
-## Baseline и Arena
+## Подход
 
-- `solution/` — baseline: OpenCV (предобработка, детекция, структура) + Tesseract (OCR), CPU.
-- `evaluator/` — TEDS, TEDS-struct, Cell F1, Numeric accuracy.
-- `arena-case/` — адаптация под DeepPavlov Arena: stdin/stdout JSON, контейнеры,
-  замороженная метрика. Эволюционная кампания ещё не запускалась.
+Baseline — классический CPU-пайплайн: OpenCV для предобработки, детекции и восстановления структуры; Tesseract для OCR.
+
+Интеграция с [DeepPavlov Arena](https://gitlab.deeppavlov.ai/deeppavlov/arena) позволяет запускать кандидатов в контейнерах и оценивать их программной метрикой. Эволюционная кампания пока не проводилась.
+
+Подробнее: [обзор подходов](docs/domain.md), [baseline](docs/baseline.md), [устройство Arena](docs/arena.md).
 
 ## Данные и метрики
 
-PubTables-1M: 19 998 страниц — train 15 998, public 2 000, private 2 000. Разбиение
-по исходным документам, предусмотрены синтетические искажения. Основная метрика —
-TEDS; также TEDS-struct, Cell F1 и Numeric accuracy. `data/` в Git не входит.
+Источник — PubTables-1M. Используются 19 998 полных страниц с синтетическими искажениями сканирования.
+
+| Раздел | Страниц |
+|---|---:|
+| Train | 15 998 |
+| Public | 2 000 |
+| Private | 2 000 |
+
+Разбиение — по исходным документам. Данные и GT не публикуются в Git. Метод подготовки описан в [документации датасета](case/dataset/README.md).
+
+**Основная метрика:** TEDS. Дополнительные: TEDS-struct, Cell F1 (позиция, объединения и текст), Numeric accuracy.
 
 ## Структура
 
 | Каталог | Назначение |
 |---|---|
-| `solution/` | baseline |
-| `evaluator/` | реализация метрик |
-| `case/` | исходный кейс и CLI |
-| `arena-case/` | интеграция с Arena |
-| `scripts/` | подготовка данных и setup Arena |
-| `tests/` | тесты |
-| `docs/` | документация |
+| `solution/` | baseline OpenCV + Tesseract |
+| `evaluator/` | вычисление метрик |
+| `case/` | исходный формат задачи и CLI |
+| `arena-case/` | адаптеры, контейнеры и метрика Arena |
+| `scripts/` | подготовка данных и установка Arena |
+| `tests/` | автоматические тесты |
+| `docs/` | домен, алгоритм, Arena и принятые решения |
 | `results/` | итоговые результаты и проверки |
-| `reports/` | локальные диагностические материалы, исключённые из Git |
-| `data/` | локальный датасет, вне Git |
 
-## A. Baseline без Arena
+`data/` и `reports/` — локальные данные и диагностические артефакты, исключённые из Git.
 
+## Запуск baseline
 
 ```bash
 brew install tesseract
 python3 -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
+python -m pytest -q
+python -m solution.cli --input page.jpg --output result.json --html result.html --visualization result.jpg
 ```
 
-Запуск и проверка:
+Подготовка датасета из открытого источника (требует загрузки больших архивов):
 
 ```bash
-python -m solution.cli --input page.jpg --output result.json --html result.html --visualization result.jpg
-python -m pytest -q
+python -m scripts.download
+python -m scripts.prepare --seed 42
 ```
 
-## B. Интеграция с Arena
+## Проверка интеграции с Arena
 
-Arena скачивается скриптом как внешняя зависимость; `arena-case/` подключается
-автоматически, вручную переносить не нужно. Docker-интеграция проверена с Tesseract 5.3.0.
-Для сценария B нужны `git`, `uv` и запущенный Docker.
+Требуются Git, uv и запущенный Docker. Arena устанавливается как внешняя зависимость автоматически; вручную копировать кейс не нужно.
 
 ```bash
 git clone https://github.com/akmulein/arena-ar03.git
 cd arena-ar03
-AR3_ROOT=$PWD
+AR3_ROOT="$PWD"
 bash scripts/setup_arena.sh
 cd "$HOME/.cache/ar03-arena"
 uv run python -m evaluator.smoke
+```
+
+Контейнерная проверка AR-03 при наличии подготовленного `data/train`:
+
+```bash
 uv run python -m cases.ar-03.container_check --train "$AR3_ROOT/data/train"
 ```
 
-Скрипт [`scripts/setup_arena.sh`](scripts/setup_arena.sh) по умолчанию клонирует
-Arena в `$HOME/.cache/ar03-arena`, закрепляет commit
-`669d9ed31840bfc46be10c8c63ccd8c3cd1f76ab`, выполняет `uv sync --frozen` и собирает
-образы `ar03-runner:local` и `ar03-metric:local`, если их нет. Для контейнерной
-проверки нужен локальный train-датасет в `data/train`.
+Скрипт установки закрепляет версию Arena, подключает кейс и собирает Docker-образы. Контейнерная версия Tesseract — 5.3.0. Подробности — в [документации кейса](arena-case/README.md).
 
-API submit → score и эволюция ещё не проверены.
+## Результаты
 
-## Результаты baseline
-
-На 200 train-страницах, использованных для диагностики и исправлений:
+Исправленный baseline, диагностическая выборка из 200 train-страниц:
 
 | Метрика | Значение |
-|---|---|
+|---|---:|
 | TEDS | 0.122096 |
 | TEDS-struct | 0.255211 |
 | Cell F1 | 0.029061 |
 | Numeric accuracy | 0.007989 |
 
-Это диагностическая выборка; не независимая оценка и не результат public/private.
+Выборка использовалась при исправлении baseline; это не независимая оценка на public/private.
 
 ## Статус
 
-### ЧП1
+**ЧП1:** baseline, evaluator, датасет, локальные и контейнерные smoke-тесты, замороженный пакет метрики. 
 
-Готовы baseline, метрики, данные, Docker-интеграция, smoke-тесты и `freeze/verify`
-(10 файлов). Не завершены API submit → score и подготовка реальной кампании.
-Подробности — [отчёт ЧП1](results/cp1/README.md), роли и устройство Arena —
-[docs/arena.md](docs/arena.md).
+API submit → score и полная подготовка кампании ещё не завершены.
 
-### ЧП2
 
-Запуск эволюции, журнал кандидатов, кривая качества и родословная.
+Результаты проверок — [results/cp1](results/cp1/README.md).
