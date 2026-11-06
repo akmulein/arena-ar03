@@ -1,0 +1,9 @@
+{
+  "pages": 200,
+  "boxes_checked": 16572,
+  "point_roundtrip_max_error": 3.410605131648481e-13,
+  "marker_trials": 30,
+  "marker_max_boundary_error_pixels": 0.710255550046341,
+  "frozen_files_unchanged": true,
+  "limitation": "Original PDF annotations are not retained; this checks the affine implementation, stored bounds and pixel alignment, not a new source annotation audit."
+}

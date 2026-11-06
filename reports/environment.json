@@ -1,0 +1,6 @@
+{
+  "platform": "macOS-15.5-arm64-arm-64bit-Mach-O",
+  "machine": "arm64",
+  "python": "3.13.7",
+  "tesseract": "tesseract 5.5.3"
+}

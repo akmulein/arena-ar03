@@ -1,0 +1,8 @@
+{
+  "name": "AR-03 full-page table extraction",
+  "primary": "teds",
+  "direction": "maximize",
+  "secondary": ["teds_struct", "cell_f1", "numeric_accuracy", "seconds_mean"],
+  "matching": "maximum-cardinality IoU>=0.5 assignment, then maximum IoU",
+  "invalid_score": 0
+}

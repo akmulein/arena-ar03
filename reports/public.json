@@ -1,0 +1,14 @@
+{
+  "fingerprint": "796361f37ed7ed36458a415270234a1a9bbd7c7855ad7fde445e712183c5c5b3",
+  "split": "public",
+  "pages": 2000,
+  "population_pages": 2000,
+  "sampling": "complete split",
+  "teds": 0.002286487452992795,
+  "teds_struct": 0.008601761462417616,
+  "cell_f1": 0.0005114929981598728,
+  "numeric_accuracy": 1.8735011990407673e-05,
+  "seconds_mean": 0.04431432891503209,
+  "seconds_total": 88.62865783006418,
+  "errors": 0
+}
