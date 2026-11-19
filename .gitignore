@@ -1,6 +1,9 @@
 # Local dataset
 /data/
 
+# Downloaded model weights
+/models/
+
 # Raw experiments and diagnostics
 /reports/
 

@@ -1,126 +1,207 @@
+import os
+from functools import lru_cache
+from html.parser import HTMLParser
+from pathlib import Path
+
 import cv2
 import numpy as np
 
 
-def positions(profile, threshold):
-    indices = np.flatnonzero(profile > threshold)
-    if not len(indices):
-        return []
-    groups = np.split(indices, np.flatnonzero(np.diff(indices) > 3) + 1)
-    return [int(round(group.mean())) for group in groups]
-
-
-def text_separators(binary, horizontal, vertical):
-    text = binary & ~(horizontal | vertical)
-    count, labels, stats, _ = cv2.connectedComponentsWithStats(text)
-    keep = np.zeros(count, np.uint8)
-    for index, (_, _, width, height, area) in enumerate(stats[1:], 1):
-        if 2 <= height <= 30 and width <= 80 and area >= 3:
-            keep[index] = 1
-    text = keep[labels]
-    heights = stats[1:][keep[1:] > 0, 3]
-    char_height = float(np.median(heights)) if len(heights) else 6
-    occupied = np.flatnonzero(text.sum(axis=1) >= 2)
-    if not len(occupied):
-        return [], []
-    bands = np.split(occupied, np.flatnonzero(np.diff(occupied) > 2) + 1)
-    ys = (
-        [0]
-        + [int((a[-1] + b[0]) / 2) for a, b in zip(bands, bands[1:])]
-        + [text.shape[0] - 1]
+@lru_cache(maxsize=1)
+def structure_model():
+    default_dir = (
+        Path(__file__).resolve().parents[1]
+        / "models/SLANet_plus"
     )
-    # A spanning header must not fill the gutters of the data columns.
-    body_start = bands[min(1, len(bands) - 1)][0]
-    body = text[body_start:]
-    whitespace = np.flatnonzero(body.sum(axis=0) <= max(1, len(body) * 0.02))
-    gaps = np.split(whitespace, np.flatnonzero(np.diff(whitespace) > 1) + 1)
-    xs = [0]
-    for gap in gaps:
-        if (
-            len(gap) >= max(4, char_height * 0.6)
-            and gap[0] > char_height
-            and gap[-1] < text.shape[1] - char_height
-        ):
-            xs.append(int((gap[0] + gap[-1]) / 2))
-    xs.append(text.shape[1] - 1)
-    return xs, ys
 
-
-def recover(box, horizontal, vertical, binary=None):
-    x0, y0, x1, y1 = box
-    h = horizontal[y0:y1, x0:x1] > 0
-    v = vertical[y0:y1, x0:x1] > 0
-    ys = positions(h.mean(axis=1), 0.3)
-    xs = positions(v.mean(axis=0), 0.3)
-    ruled_grid = len(xs) >= 3 and len(ys) >= 2
-    if not ruled_grid and binary is not None:
-        inferred_xs, inferred_ys = text_separators(
-            binary[y0:y1, x0:x1],
-            horizontal[y0:y1, x0:x1],
-            vertical[y0:y1, x0:x1],
+    model_dir = Path(
+        os.environ.get(
+            "AR03_STRUCTURE_MODEL_DIR",
+            str(default_dir),
         )
-        if len(inferred_xs) >= 3 and len(inferred_ys) >= 3:
-            xs, ys = inferred_xs, inferred_ys
-        else:
-            return None
-    if len(xs) < 2 or len(ys) < 2:
-        return None
-    rows, cols = len(ys) - 1, len(xs) - 1
-    groups = [{(r, c)} for r in range(rows) for c in range(cols)]
+    ).expanduser()
 
-    def merge(a, b):
-        ga = next(g for g in groups if a in g)
-        gb = next(g for g in groups if b in g)
-        if ga is gb:
+    if not model_dir.is_dir():
+        raise FileNotFoundError(
+            f"SLANet_plus weights not found: {model_dir}"
+        )
+
+    from paddlex import create_model
+
+    return create_model(
+        model_name="SLANet_plus",
+        model_dir=str(model_dir),
+        device="cpu",
+    )
+
+
+class TableParser(HTMLParser):
+    """Convert HTML table structure into logical cells."""
+
+    def __init__(self):
+        super().__init__()
+        self.row = -1
+        self.col = 0
+        self.cells = []
+        self.occupied = set()
+
+    def handle_starttag(self, tag, attrs):
+        if tag == "tr":
+            self.row += 1
+            self.col = 0
             return
-        ga.update(gb)
-        groups.remove(gb)
 
-    for r in range(rows):
-        for c in range(cols):
-            if ruled_grid and c + 1 < cols:
-                boundary = v[
-                    ys[r] + 2 : ys[r + 1] - 1,
-                    max(0, xs[c + 1] - 2) : xs[c + 1] + 3,
-                ]
-                if boundary.size and boundary.any(axis=1).mean() < 0.35:
-                    merge((r, c), (r, c + 1))
-            if ruled_grid and r + 1 < rows:
-                boundary = h[
-                    max(0, ys[r + 1] - 2) : ys[r + 1] + 3,
-                    xs[c] + 2 : xs[c + 1] - 1,
-                ]
-                if boundary.size and boundary.any(axis=0).mean() < 0.35:
-                    merge((r, c), (r + 1, c))
-    rectangles = []
-    for group in groups:
-        rr, cc = zip(*group)
-        if len(group) == (max(rr) - min(rr) + 1) * (max(cc) - min(cc) + 1):
-            rectangles.append(group)
-        else:
-            rectangles.extend({position} for position in sorted(group))
-    cells = []
-    for group in rectangles:
-        rr, cc = zip(*group)
-        r0, r1, c0, c1 = min(rr), max(rr), min(cc), max(cc)
-        cells.append(
+        if tag not in ("td", "th") or self.row < 0:
+            return
+
+        attrs = dict(attrs)
+
+        rowspan = max(1, int(attrs.get("rowspan", 1)))
+        colspan = max(1, int(attrs.get("colspan", 1)))
+
+        # Find a free position, accounting for merged cells
+        while any(
+            (r, c) in self.occupied
+            for r in range(self.row, self.row + rowspan)
+            for c in range(self.col, self.col + colspan)
+        ):
+            self.col += 1
+
+        r0 = self.row
+        r1 = self.row + rowspan - 1
+        c0 = self.col
+        c1 = self.col + colspan - 1
+
+        self.cells.append(
             dict(
                 r0=r0,
                 r1=r1,
                 c0=c0,
                 c1=c1,
                 text="",
-                bbox=[
-                    x0 + xs[c0],
-                    y0 + ys[r0],
-                    x0 + xs[c1 + 1],
-                    y0 + ys[r1 + 1],
-                ],
             )
         )
+
+        for r in range(r0, r1 + 1):
+            for c in range(c0, c1 + 1):
+                self.occupied.add((r, c))
+
+        self.col += colspan
+
+
+def parse_structure(structure):
+    html = (
+        structure
+        if isinstance(structure, str)
+        else "".join(structure)
+    )
+
+    parser = TableParser()
+    parser.feed(html)
+    parser.close()
+
+    return parser.cells
+
+
+def normalize_bbox(points, box):
+    """Convert local cell polygon into page coordinates."""
+
+    x0, y0, x1, y1 = box
+    width = x1 - x0
+    height = y1 - y0
+
+    points = np.asarray(
+        points, dtype=np.float32
+    ).reshape(-1, 2)
+
+    if len(points) == 0 or not np.isfinite(points).all():
+        return None
+
+    xmin = int(np.floor(points[:, 0].min()))
+    ymin = int(np.floor(points[:, 1].min()))
+    xmax = int(np.ceil(points[:, 0].max()))
+    ymax = int(np.ceil(points[:, 1].max()))
+
+    xmin = int(np.clip(xmin, 0, width))
+    xmax = int(np.clip(xmax, 0, width))
+    ymin = int(np.clip(ymin, 0, height))
+    ymax = int(np.clip(ymax, 0, height))
+
+    if xmin >= xmax or ymin >= ymax:
+        return None
+
+    return [
+        x0 + xmin,
+        y0 + ymin,
+        x0 + xmax,
+        y0 + ymax,
+    ]
+
+
+def recover(
+    box,
+    horizontal=None,
+    vertical=None,
+    binary=None,
+    *,
+    gray=None,
+):
+    """Recover table structure using SLANet_plus."""
+
+    if gray is None:
+        if binary is None:
+            return None
+
+        gray = 255 - binary
+
+    x0, y0, x1, y1 = map(int, box)
+    box = (x0, y0, x1, y1)
+
+    crop = gray[y0:y1, x0:x1]
+
+    if crop.size == 0:
+        return None
+
+    if crop.ndim == 2:
+        crop = cv2.cvtColor(crop, cv2.COLOR_GRAY2BGR)
+
+    crop = np.ascontiguousarray(crop)
+
+    result = next(
+        structure_model().predict(
+            crop,
+            batch_size=1,
+        )
+    )
+
+    # Decode HTML structure
+    cells = parse_structure(result["structure"])
+    bboxes = result["bbox"]
+
+    if not cells:
+        return None
+
+    if len(cells) != len(bboxes):
+        return None
+
+    # Assign geometry to logical cells
+    for cell, points in zip(cells, bboxes):
+        bbox = normalize_bbox(points, box)
+
+        if bbox is None:
+            return None
+
+        cell["bbox"] = bbox
+
+    rows = max(cell["r1"] for cell in cells) + 1
+    cols = max(cell["c1"] for cell in cells) + 1
+
     return dict(
         bbox=list(box),
         rows=rows,
         cols=cols,
-        cells=sorted(cells, key=lambda c: (c["r0"], c["c0"])),
+        cells=sorted(
+            cells,
+            key=lambda c: (c["r0"], c["c0"]),
+        ),
     )

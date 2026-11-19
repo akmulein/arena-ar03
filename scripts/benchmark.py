@@ -7,6 +7,7 @@ from pathlib import Path
 import cv2
 import numpy as np
 
+from evaluator.detection import detection_summary, score_detection
 from evaluator.metrics import score
 from scripts.prepare import SPLITS
 from solution.pipeline import solve
@@ -59,13 +60,15 @@ def main():
         if (
             run.get("fingerprint") != fingerprint
             or run.get("image_sha256") != record["sha256"]
+            or "detections" not in run
         ):
             if args.cached_only:
                 raise ValueError(f"Stale cache: {page_id}")
             image = cv2.imread(str(root / "images" / f"{page_id}.jpg"))
             start = time.perf_counter()
+            detections = []
             try:
-                prediction = solve(image)
+                prediction = solve(image, detections=detections)
                 error = None
             except (RuntimeError, ValueError) as exc:
                 prediction, error = {"tables": []}, str(exc)
@@ -73,12 +76,14 @@ def main():
                 fingerprint=fingerprint,
                 image_sha256=record["sha256"],
                 prediction=prediction,
+                detections=detections,
                 seconds=time.perf_counter() - start,
                 error=error,
             )
             saved.write_text(json.dumps(run, ensure_ascii=False))
         truth = json.loads((root / "truth" / f"{page_id}.json").read_text())
         metrics = score(run["prediction"], truth)
+        metrics.update(score_detection(run["detections"], truth["tables"]))
         results.append(
             dict(
                 id=page_id,
@@ -113,6 +118,11 @@ def main():
         seconds_mean=float(np.mean([r["seconds"] for r in results])),
         seconds_total=sum(r["seconds"] for r in results),
         errors=sum(r["error"] is not None for r in results),
+        **detection_summary(
+            sum(r["detection_tp"] for r in results),
+            sum(r["detection_fp"] for r in results),
+            sum(r["detection_fn"] for r in results),
+        ),
     )
     name = args.manifest.stem if args.manifest else args.split
     if args.cached_only:

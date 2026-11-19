@@ -66,7 +66,7 @@ def restore(table, inverse, width, height):
 def evaluate(image, truth, modes, stage):
     start = time.perf_counter()
     gray, binary, inverse = preprocess(image)
-    boxes, horizontal, vertical = detect(binary)
+    boxes, horizontal, vertical = detect(binary, gray=gray)
     h, w = gray.shape
     forward = cv2.invertAffineTransform(inverse)
     raw = [{"bbox": transform_box(b, inverse, w, h)} for b in boxes]
