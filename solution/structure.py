@@ -1,10 +1,14 @@
+
+import logging
 import os
 from functools import lru_cache
 from html.parser import HTMLParser
 from pathlib import Path
 
-import cv2
 import numpy as np
+
+
+logger = logging.getLogger(__name__)
 
 
 @lru_cache(maxsize=1)
@@ -59,7 +63,7 @@ class TableParser(HTMLParser):
         rowspan = max(1, int(attrs.get("rowspan", 1)))
         colspan = max(1, int(attrs.get("colspan", 1)))
 
-        # Find a free position, accounting for merged cells
+        # Find an available position for the cell.
         while any(
             (r, c) in self.occupied
             for r in range(self.row, self.row + rowspan)
@@ -90,6 +94,8 @@ class TableParser(HTMLParser):
 
 
 def parse_structure(structure):
+    """Parse predicted HTML tokens."""
+
     html = (
         structure
         if isinstance(structure, str)
@@ -110,11 +116,17 @@ def normalize_bbox(points, box):
     width = x1 - x0
     height = y1 - y0
 
-    points = np.asarray(
-        points, dtype=np.float32
-    ).reshape(-1, 2)
+    try:
+        points = np.asarray(points, dtype=np.float32)
+    except (ValueError, TypeError):
+        return None
 
-    if len(points) == 0 or not np.isfinite(points).all():
+    if points.size not in (4, 8):
+        return None
+
+    points = points.reshape(-1, 2)
+
+    if not np.isfinite(points).all():
         return None
 
     xmin = int(np.floor(points[:, 0].min()))
@@ -138,32 +150,17 @@ def normalize_bbox(points, box):
     ]
 
 
-def recover(
-    box,
-    horizontal=None,
-    vertical=None,
-    binary=None,
-    *,
-    gray=None,
-):
+def recover(box, image):
     """Recover table structure using SLANet_plus."""
-
-    if gray is None:
-        if binary is None:
-            return None
-
-        gray = 255 - binary
 
     x0, y0, x1, y1 = map(int, box)
     box = (x0, y0, x1, y1)
 
-    crop = gray[y0:y1, x0:x1]
+    crop = image[y0:y1, x0:x1]
 
     if crop.size == 0:
+        logger.debug("Empty table crop: %s", box)
         return None
-
-    if crop.ndim == 2:
-        crop = cv2.cvtColor(crop, cv2.COLOR_GRAY2BGR)
 
     crop = np.ascontiguousarray(crop)
 
@@ -174,21 +171,33 @@ def recover(
         )
     )
 
-    # Decode HTML structure
     cells = parse_structure(result["structure"])
     bboxes = result["bbox"]
 
     if not cells:
+        logger.debug(
+            "SLANet_plus returned no cells: %s",
+            box,
+        )
         return None
 
     if len(cells) != len(bboxes):
+        logger.debug(
+            "Structure mismatch: %d cells, %d bboxes",
+            len(cells),
+            len(bboxes),
+        )
         return None
 
-    # Assign geometry to logical cells
     for cell, points in zip(cells, bboxes):
         bbox = normalize_bbox(points, box)
 
         if bbox is None:
+            logger.debug(
+                "Invalid bbox for cell (%d, %d)",
+                cell["r0"],
+                cell["c0"],
+            )
             return None
 
         cell["bbox"] = bbox

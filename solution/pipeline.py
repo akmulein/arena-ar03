@@ -1,3 +1,4 @@
+
 import cv2
 
 from solution.detection import detect
@@ -9,23 +10,17 @@ from solution.structure import recover
 
 
 def solve(image, *, detections=None):
-    """Recognize tables; optionally collect raw boxes in input coordinates."""
+    """Recognize tables in a document image."""
 
     cv2.setNumThreads(1)
 
-    # Preprocessing: deskew without binarization
     deskewed, inverse = preprocess(image)
-
-    # Table detection: DocLayout-YOLO
     boxes = detect(deskewed)
-
-    # Grayscale image for OCR
-    gray = cv2.cvtColor(deskewed, cv2.COLOR_BGR2GRAY)
 
     tables = []
     height, width = image.shape[:2]
 
-    # Raw detections for benchmark
+    # Collect raw detections independently of structure recognition.
     if detections is not None:
         detections.extend(
             {"bbox": transform_box(box, inverse, width, height)}
@@ -33,16 +28,17 @@ def solve(image, *, detections=None):
         )
 
     for box in boxes:
-        # Table structure recognition: SLANet_plus
-        table = recover(box, gray=deskewed)
+        table = recover(box, deskewed)
 
         if table is None:
             continue
 
-        # Cell text recognition
-        recognize(gray, table)
+        # Validate the logical grid before OCR.
+        validate({"tables": [table]})
 
-        # Restore table coordinates
+        recognize(deskewed, table)
+
+        # Restore original table coordinates.
         table["bbox"] = transform_box(
             table["bbox"],
             inverse,
@@ -50,7 +46,7 @@ def solve(image, *, detections=None):
             height,
         )
 
-        # Restore cell coordinates
+        # Restore original cell coordinates.
         for cell in table["cells"]:
             cell["bbox"] = transform_box(
                 cell["bbox"],
