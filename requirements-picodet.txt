@@ -1,2 +1,0 @@
-paddlepaddle>=3.2,<4
-paddlex[ocr]>=3.3,<4

@@ -2,9 +2,9 @@ from copy import deepcopy
 
 import pytest
 
-from evaluator.metrics import score
-from solution.postprocess import to_html
-from solution.schema import validate
+from evaluation.metrics import score
+from common.postprocess import to_html
+from common.schema import validate
 
 
 def page(text="12"):
@@ -91,27 +91,3 @@ def test_wrong_location():
     other = page()
     other["tables"][0]["bbox"] = [200, 200, 300, 300]
     assert score(other, page())["teds"] == 0
-
-
-def test_malformed_json_cli(tmp_path):
-    import json
-    import subprocess
-    import sys
-
-    predicted = tmp_path / "predicted.json"
-    truth = tmp_path / "truth.json"
-    predicted.write_text("{broken")
-    truth.write_text(json.dumps(page()))
-    output = subprocess.check_output(
-        [
-            sys.executable,
-            "-m",
-            "case.metric.score",
-            str(predicted),
-            str(truth),
-        ],
-        text=True,
-    )
-    result = json.loads(output)
-    assert not result["valid"]
-    assert result["teds"] == result["cell_f1"] == 0

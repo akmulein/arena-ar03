@@ -1,8 +1,12 @@
 from copy import deepcopy
 
+import cv2
+import numpy as np
 import pytest
 
-from scripts.prepare import convert
+from dataset.annotations import convert
+from dataset.augment import distort
+from dataset.subsets import choose
 
 
 def source():
@@ -45,8 +49,6 @@ def test_nonrectangular_source():
 
 
 def test_subset_preserves_documents_and_seed():
-    from scripts.subsets import choose
-
     records = [
         dict(id=f"d{d}_{p}", document=f"d{d}")
         for d in range(40)
@@ -60,3 +62,16 @@ def test_subset_preserves_documents_and_seed():
     documents = {r["document"] for r in subset}
     assert len(documents) == 10
     assert subset == [r for r in records if r["document"] in documents]
+
+
+def test_reproducible_distortion():
+    image = np.full((300, 400, 3), 255, np.uint8)
+    cv2.line(image, (30, 40), (330, 40), (0, 0, 0), 2)
+    truth = convert([source()], 400, 300)
+    original = deepcopy(truth)
+    a, truth_a, profile_a = distort(image, truth, 'doc_1', seed=42)
+    b, truth_b, profile_b = distort(image, truth, 'doc_1', seed=42)
+    assert np.array_equal(a, b)
+    assert truth_a == truth_b
+    assert profile_a == profile_b
+    assert truth == original

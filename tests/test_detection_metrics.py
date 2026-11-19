@@ -1,8 +1,7 @@
-import numpy as np
 import pytest
 
-from evaluator.detection import detection_summary, score_detection
-from solution import pipeline
+from evaluation.detection import detection_summary, score_detection
+from evaluation.matching import match_tables
 
 
 def table(box):
@@ -55,22 +54,7 @@ def test_micro_aggregation():
     assert result["detection_f1"] == 0.4
 
 
-def test_detection_survives_rejected_structure(monkeypatch):
-    gray = np.full((30, 30), 255, dtype=np.uint8)
-    binary = 255 - gray
-    inverse = np.array([[1, 0, 5], [0, 1, 7]], dtype=float)
-    monkeypatch.setattr(
-        pipeline, "preprocess", lambda image: (gray, binary, inverse)
-    )
-    monkeypatch.setattr(
-        pipeline,
-        "detect",
-        lambda *args, **kwargs: ([(1, 2, 10, 12)], binary, binary),
-    )
-    monkeypatch.setattr(pipeline, "recover", lambda *args: None)
-    detections = []
-
-    result = pipeline.solve(np.dstack([gray] * 3), detections=detections)
-
-    assert result == {"tables": []}
-    assert detections == [{"bbox": [6, 9, 15, 19]}]
+def test_matching_maximizes_valid_pairs_before_iou():
+    predicted = [table([0, 0, 10, 10]), table([4, 0, 14, 10])]
+    truth = [table([1, 0, 11, 10]), table([0, 0, 6, 10])]
+    assert set(match_tables(predicted, truth)) == {(0, 1), (1, 0)}
