@@ -1,5 +1,3 @@
-# AR-03: воспроизведение и сдача проекта
-
 ДЗ по курсу Agentic LLM Sys. Код арены взят здесь: https://gitlab.deeppavlov.ai/deeppavlov/arena/-/commits/main
 
 Мое решение в cases/ar-03
