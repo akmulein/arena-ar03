@@ -1,0 +1,23 @@
+{
+  "train": {
+    "method": "ar03-marginal-stratified-v1",
+    "seed": 42,
+    "max_pages_per_document": 2,
+    "source_manifest_sha256": "8841745644e2f31fe64e4295b69626449c969e91efc49e7c0089255e1503635d",
+    "manifest_sha256": "574567f88177cc323d197638c5a5537501304e04eb701c22a85124a438cb331d"
+  },
+  "public": {
+    "method": "ar03-marginal-stratified-v1",
+    "seed": 42,
+    "max_pages_per_document": 2,
+    "source_manifest_sha256": "606a45277dcb38fac7ee52ed3d9c23c66805f6b2fced9f52c20060e77d11ed92",
+    "manifest_sha256": "671c2e6ed71338e06558ff680e4b0b08a8fd1985b051e6a5ae9801796c5524b7"
+  },
+  "private": {
+    "method": "ar03-marginal-stratified-v1",
+    "seed": 42,
+    "max_pages_per_document": 2,
+    "source_manifest_sha256": "ab104a0569a17c71cbaa396cfc077f148e7932a4330baecf8dcb7f74d32ec634",
+    "manifest_sha256": "34490608bc9382b8a398658ed6043e197c5c07b98bc619c1362e78f8f700da49"
+  }
+}

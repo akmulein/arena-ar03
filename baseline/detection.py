@@ -37,7 +37,7 @@ def detect(image):
         image,
         imgsz=1024,
         conf=0.25,
-        device="cpu",
+        device="mps",
         verbose=False,
     )[0]
 

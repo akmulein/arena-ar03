@@ -1,0 +1,7 @@
+# OCR multiline candidate
+
+Derived from `cases/ar-03/ways/baseline` under Arena revision `7cb90b8884a6c827698c27830d08b4b64594c1bc`; upstream provenance is recorded in `cases/ar-03/provenance.json`. This candidate changes only cell OCR segmentation and recombination. Detector, structure model, weights, devices, input adapter, and output schema are inherited unchanged. The copied structure module has only two lint fixes: import spacing and explicit `strict=False` retaining the existing `zip` behavior. No new dependency, training, reference text, or document-specific rule is introduced.
+
+The recognizer consumes text-line images, as documented by [PaddleOCR](https://www.paddleocr.ai/v3.3.1/en/version3.x/module_usage/text_recognition.html). The original full cell is retained for single-line or ambiguous crops. Clear multiple text rows are split at their whitespace midpoints; the original image slices are recognized with the existing CPU model and joined in reading order. Long frame rules are ignored only when locating text rows. Small vertical gaps are merged to keep dots and accents with their glyphs.
+
+The synthetic tests use drawn components and a stub recognizer only. They do not load weights, read train images, or measure candidate quality. Quality remains untested until the orchestrator registers this exact snapshot and evaluates the frozen train-20. The selected subset is dependent train evidence; there is no public/private score or AUC.

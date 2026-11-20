@@ -1,0 +1,50 @@
+{
+  "format_version": 1,
+  "files": {
+    "LICENSE-TEDS.txt": {
+      "executable": false
+    },
+    "aggregate.py": {
+      "executable": false
+    },
+    "metric.json": {
+      "executable": false
+    },
+    "requirements.txt": {
+      "executable": false
+    },
+    "runtime/ar03_metric/__init__.py": {
+      "executable": false
+    },
+    "runtime/ar03_metric/common/__init__.py": {
+      "executable": false
+    },
+    "runtime/ar03_metric/common/postprocess.py": {
+      "executable": false
+    },
+    "runtime/ar03_metric/common/schema.py": {
+      "executable": false
+    },
+    "runtime/ar03_metric/evaluation/__init__.py": {
+      "executable": false
+    },
+    "runtime/ar03_metric/evaluation/detection.py": {
+      "executable": false
+    },
+    "runtime/ar03_metric/evaluation/matching.py": {
+      "executable": false
+    },
+    "runtime/ar03_metric/evaluation/metrics.py": {
+      "executable": false
+    },
+    "runtime/ar03_metric/evaluation/reporting.py": {
+      "executable": false
+    },
+    "runtime/ar03_metric/evaluation/teds.py": {
+      "executable": false
+    },
+    "score.py": {
+      "executable": false
+    }
+  }
+}

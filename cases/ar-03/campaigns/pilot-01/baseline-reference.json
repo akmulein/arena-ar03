@@ -1,0 +1,26 @@
+{
+  "kind": "baseline_reference",
+  "counts_toward_proposal_budget": false,
+  "candidate_digest": "f45a7018113ce743fbca0690f6291f4a0a00ba329beb3449fefc92a5840afe88",
+  "evaluation_id": "2637ff6408e1831aa21c8d6a3b865ced8193ce31883ae3b886b5b11d1bb60231",
+  "pages": 20,
+  "status": "FINISHED",
+  "metric_version": "ar03-baseline-teds-v1",
+  "dataset_id": "ar03-train-500",
+  "subset_id": "57fb3faabf5fbb1e9eaa2b8bf71a497c9f8941d0c1ec805a8d0ae95100a9a962",
+  "conditions_id": "ar03-teds-v1-docker-arm64-cpu-train-only",
+  "device": "cpu",
+  "metrics": {
+    "solver_tokens": 0,
+    "solver_seconds": 1165.0554445832968,
+    "solver_unreported_attempts": 0,
+    "solver_resources_complete": true,
+    "judge_tokens": 0,
+    "judge_seconds": 11.101846,
+    "judge_unreported_attempts": 0,
+    "judge_resources_complete": true,
+    "wall_seconds": 1180.513918,
+    "score": 0.6857881802982108
+  },
+  "source_ref": "Разовое разрешение владельца: неизменённый baseline на фиксированном train-20, CPU DockerRunner, прежняя метрика; вне бюджета четырёх кандидатов"
+}

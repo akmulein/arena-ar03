@@ -1,0 +1,76 @@
+{
+  "purpose": "Description of the installed operator-only package; not an executable metric package.",
+  "definition": {
+    "version": "ar03-baseline-teds-v1",
+    "kind": "command",
+    "direction": "maximize",
+    "command": {
+      "argv": [
+        "python",
+        "score.py"
+      ],
+      "uses_model": false,
+      "timeout_seconds": 21600
+    },
+    "aggregation": {
+      "argv": [
+        "python",
+        "aggregate.py"
+      ],
+      "uses_model": false,
+      "timeout_seconds": 21600,
+      "aggregation_input": "report"
+    }
+  },
+  "file_manifest": {
+    "format_version": 1,
+    "files": {
+      "LICENSE-TEDS.txt": {
+        "executable": false
+      },
+      "aggregate.py": {
+        "executable": false
+      },
+      "metric.json": {
+        "executable": false
+      },
+      "requirements.txt": {
+        "executable": false
+      },
+      "runtime/ar03_metric/__init__.py": {
+        "executable": false
+      },
+      "runtime/ar03_metric/common/__init__.py": {
+        "executable": false
+      },
+      "runtime/ar03_metric/common/postprocess.py": {
+        "executable": false
+      },
+      "runtime/ar03_metric/common/schema.py": {
+        "executable": false
+      },
+      "runtime/ar03_metric/evaluation/__init__.py": {
+        "executable": false
+      },
+      "runtime/ar03_metric/evaluation/detection.py": {
+        "executable": false
+      },
+      "runtime/ar03_metric/evaluation/matching.py": {
+        "executable": false
+      },
+      "runtime/ar03_metric/evaluation/metrics.py": {
+        "executable": false
+      },
+      "runtime/ar03_metric/evaluation/reporting.py": {
+        "executable": false
+      },
+      "runtime/ar03_metric/evaluation/teds.py": {
+        "executable": false
+      },
+      "score.py": {
+        "executable": false
+      }
+    }
+  },
+  "researcher_may_execute_metric": false
+}

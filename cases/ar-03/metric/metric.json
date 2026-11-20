@@ -1,0 +1,16 @@
+{
+  "version": "ar03-baseline-teds-v1",
+  "kind": "command",
+  "direction": "maximize",
+  "command": {
+    "argv": ["python", "score.py"],
+    "uses_model": false,
+    "timeout_seconds": 21600
+  },
+  "aggregation": {
+    "argv": ["python", "aggregate.py"],
+    "uses_model": false,
+    "timeout_seconds": 21600,
+    "aggregation_input": "report"
+  }
+}

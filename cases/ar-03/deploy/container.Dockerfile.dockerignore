@@ -1,0 +1,17 @@
+**
+!pyproject.toml
+!uv.lock
+!evaluator/
+!evaluator/**
+!common/
+!common/*.md
+!prompts/
+!prompts/*.md
+!README.md
+!AGENTS.md
+!cases/
+!cases/ar-03/
+!cases/ar-03/deploy/
+!cases/ar-03/deploy/network-guard.sh
+!cases/ar-03/deploy/squid.conf
+!cases/ar-03/deploy/relay.py

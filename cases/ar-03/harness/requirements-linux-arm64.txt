@@ -1,0 +1,9 @@
+# Linux ARM64: available CPU Paddle wheel; same code and local model weights.
+--extra-index-url https://download.pytorch.org/whl/cpu
+numpy==2.3.5
+opencv-python==5.1.0.95
+doclayout-yolo==0.0.4
+torch==2.15.0+cpu
+torchvision==0.29.2+cpu
+paddlepaddle==3.2.2
+paddlex[ocr]==3.7.2

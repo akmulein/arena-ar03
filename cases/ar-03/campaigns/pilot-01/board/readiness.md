@@ -1,0 +1,5 @@
+# Восстановление готовности
+
+Условия: ../campaign.md и ../start.md. Разрешённый операторский handoff: ../preparation.md; описание и состав действительного frozen package: ../metric-description.json. Исполняемый пакет находится только у доверенного оценщика на хосте, недоступен researcher и не нужен ему для старта. Подготовка, freeze/verify метрики и приёмка заново не выполняются. Текущее состояние и допуск читает /opt/arena/.venv/bin/python cases/ar-03/client.py status; канонический журнал /search/search.sqlite3 доступен только для чтения.
+
+Производные build-публикации не используются. Происхождение baseline — cases/ar-03/provenance.json и ways/baseline; веса предоставляет только CPU DockerRunner. Фиксированные 20 train IDs находятся в cases/ar-03/_local/evaluation-ids.json и у оператора. Исторические MPS/native-замеры не являются результатами текущего CPU-пилота. Этот train-набор зависимый; обобщаемость не подтверждена. MLflow выключен, public/private не используются, public AUC отсутствует. Для client.py использовать готовый /opt/arena/.venv/bin/python с httpx.

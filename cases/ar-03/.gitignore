@@ -1,0 +1,9 @@
+_local/
+__pycache__/
+.pytest_cache/
+*.sqlite*
+*.env
+!*.env.example
+dataset/*.jsonl
+results/*
+!results/.gitkeep

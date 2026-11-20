@@ -1,0 +1,10 @@
+[tool.ruff]
+line-length = 100
+extend-exclude = ["ways/baseline/runtime", "metric/runtime", "campaigns/*/metric"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B"]
+
+[tool.pytest.ini_options]
+addopts = "--import-mode=importlib"
+pythonpath = ["../.."]

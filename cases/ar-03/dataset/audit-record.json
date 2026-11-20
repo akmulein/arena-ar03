@@ -1,0 +1,27 @@
+{
+  "status": "review_required",
+  "dataset_revision": "35b1c097807e0b07ec5313879b85956b7b3890db",
+  "seed": 42,
+  "errors": [],
+  "provenance": "Permitted fields of the existing frozen arena-subsets-audit.json; not a new audit.",
+  "splits": {
+    "train": {
+      "manifest_sha256": "574567f88177cc323d197638c5a5537501304e04eb701c22a85124a438cb331d",
+      "subset": {
+        "pages": 500
+      }
+    },
+    "public": {
+      "manifest_sha256": "671c2e6ed71338e06558ff680e4b0b08a8fd1985b051e6a5ae9801796c5524b7",
+      "subset": {
+        "pages": 200
+      }
+    },
+    "private": {
+      "manifest_sha256": "34490608bc9382b8a398658ed6043e197c5c07b98bc619c1362e78f8f700da49",
+      "subset": {
+        "pages": 200
+      }
+    }
+  }
+}

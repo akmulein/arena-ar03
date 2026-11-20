@@ -1,0 +1,92 @@
+services:
+  researcher:
+    extends:
+      file: ../../../compose.yaml
+      service: researcher
+    profiles: !reset []
+    image: ${AR03_RESEARCHER_IMAGE:?Use operatorctl.py}
+    pull_policy: never
+    build: !reset null
+    user: "10001:10001"
+    network_mode: service:network-guard
+    networks: !reset []
+    depends_on:
+      network-guard:
+        condition: service_healthy
+      api-relay:
+        condition: service_started
+      egress-proxy:
+        condition: service_started
+    environment:
+      HTTP_PROXY: http://172.29.83.30:3128
+      HTTPS_PROXY: http://172.29.83.30:3128
+      NO_PROXY: 172.29.83.20,127.0.0.1,localhost
+      AR03_API: http://172.29.83.20:8080
+      CODEX_HOME: /codex
+      ARENA_SEARCH_JOURNAL: /search/search.sqlite3
+      MLFLOW_TRACKING_URI: ""
+    volumes: !override
+      - ${AR03_OPERATOR_ROOT:?Set operator root}/research-workspace:/workspace
+      - ${AR03_OPERATOR_ROOT}/search:/search:ro
+      - ${AR03_OPERATOR_ROOT}/research-token:/run/secrets/submit-token:ro
+      - ${AR03_OPERATOR_ROOT}/private/data/train.jsonl:/workspace/cases/ar-03/_local/train-500.jsonl:ro
+      - codex-auth:/codex
+    mem_limit: 4g
+    pids_limit: 256
+    command: [sleep, infinity]
+  network-guard:
+    image: ${AR03_RESEARCHER_IMAGE:?Use operatorctl.py}
+    pull_policy: never
+    user: "0:0"
+    read_only: true
+    cap_drop: [ALL]
+    cap_add: [NET_ADMIN]
+    security_opt: [no-new-privileges:true]
+    tmpfs: ["/tmp:rw,nosuid,nodev,size=8m"]
+    entrypoint: [sh, /opt/network/network-guard.sh]
+    networks:
+      research:
+        ipv4_address: 172.29.83.10
+    healthcheck:
+      test: [CMD, test, -f, /tmp/network-ready]
+      interval: 1s
+      timeout: 1s
+      retries: 20
+  api-relay:
+    image: ${AR03_RESEARCHER_IMAGE:?Use operatorctl.py}
+    pull_policy: never
+    user: "10001:10001"
+    read_only: true
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    environment:
+      AR03_OPERATOR_URL: http://host.docker.internal:${AR03_OPERATOR_PORT:-8799}
+    extra_hosts: [host.docker.internal:host-gateway]
+    tmpfs: ["/tmp:rw,noexec,nosuid,nodev,size=64m"]
+    entrypoint: [python, -B, -m, uvicorn, relay:app, --app-dir, /opt/network, --host, 0.0.0.0, --port, "8080", --no-access-log]
+    networks:
+      research:
+        ipv4_address: 172.29.83.20
+      outbound: {}
+  egress-proxy:
+    image: ${AR03_RESEARCHER_IMAGE:?Use operatorctl.py}
+    pull_policy: never
+    user: "0:0"
+    read_only: true
+    cap_drop: [ALL]
+    cap_add: [SETUID, SETGID, CHOWN, DAC_OVERRIDE]
+    security_opt: [no-new-privileges:true]
+    tmpfs: ["/tmp:rw,nosuid,nodev,size=32m,mode=1777"]
+    entrypoint: [squid, -N, -f, /opt/network/squid.conf]
+    networks:
+      research:
+        ipv4_address: 172.29.83.30
+      outbound: {}
+networks:
+  research:
+    internal: true
+    ipam:
+      config: [{subnet: 172.29.83.0/24}]
+  outbound: {}
+volumes:
+  codex-auth: {}

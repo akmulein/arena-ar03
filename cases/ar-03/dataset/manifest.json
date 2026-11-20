@@ -1,0 +1,19 @@
+{
+  "dataset_id": "ar03-frozen-subsets-500-200-200",
+  "source_revision": "35b1c097807e0b07ec5313879b85956b7b3890db",
+  "seed": 42,
+  "sizes": {"train": 500, "public": 200, "private": 200},
+  "existing_manifests": {
+    "train": "data/subsets/train-500.jsonl",
+    "public": "data/subsets/public-200.jsonl",
+    "private": "data/subsets/private-200.jsonl"
+  },
+  "existing_audit": "data/subsets/arena-subsets-audit.json",
+  "audit_status": "review_required",
+  "audit_integrity_errors": 0,
+  "audit_potential_similar_pairs": 22,
+  "audit_repeated": false,
+  "closed_manifests_copied": false,
+  "selection_changed": false,
+  "notes": "The existing audit warning is retained; no new approval or reselection is required by this integration. Closed data are exported only by the isolated operator."
+}

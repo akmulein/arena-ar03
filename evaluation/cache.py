@@ -95,10 +95,10 @@ def baseline_fingerprint(project_root: Path = PROJECT_ROOT) -> str:
         'python': sys.version,
         'platform': platform.system(),
         'machine': platform.machine(),
+        'device': 'mps',
     }
     encoded = json.dumps(payload, sort_keys=True).encode('utf-8')
     return hashlib.sha256(encoded).hexdigest()
-
 
 def load_prediction(path: Path, fingerprint: str, image_sha256: str) -> dict | None:
     if not path.is_file():
