@@ -1,0 +1,54 @@
+{
+  "fixture": "05005c277f61",
+  "client": {
+    "first_exit": 0,
+    "first_stdout": "current-complete",
+    "allowed_after_exec_exit": 0,
+    "allowed_after_exec_has_version": true,
+    "blocked_exit": 125,
+    "blocked_stdout_empty": true
+  },
+  "blocked_container_absent": true,
+  "events": [
+    {
+      "event": "ready",
+      "utc": "2026-11-03T10:31:43.145257+00:00"
+    },
+    {
+      "event": "allowed",
+      "utc": "2026-11-03T10:31:43.919303+00:00",
+      "pid": 3966824,
+      "start_time_ticks": "385751456"
+    },
+    {
+      "event": "closed",
+      "utc": "2026-11-03T10:31:43.947993+00:00",
+      "pid": 3966824,
+      "start_time_ticks": "385751456"
+    },
+    {
+      "event": "rejected",
+      "utc": "2026-11-03T10:32:12.563159+00:00",
+      "pid": 3972752,
+      "start_time_ticks": "385754498"
+    },
+    {
+      "event": "rejected",
+      "utc": "2026-11-03T10:32:12.563919+00:00",
+      "pid": 3972752,
+      "start_time_ticks": "385754498"
+    },
+    {
+      "event": "rejected",
+      "utc": "2026-11-03T10:32:12.564719+00:00",
+      "pid": 3972752,
+      "start_time_ticks": "385754498"
+    },
+    {
+      "event": "rejected",
+      "utc": "2026-11-03T10:32:12.565399+00:00",
+      "pid": 3972752,
+      "start_time_ticks": "385754498"
+    }
+  ]
+}

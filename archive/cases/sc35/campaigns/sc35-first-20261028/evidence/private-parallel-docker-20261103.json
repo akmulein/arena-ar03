@@ -1,0 +1,19 @@
+{
+  "status": "ok",
+  "observed_at": "2026-11-03T10:47:00.115397+00:00",
+  "image_id": "sha256:bf660f0fa9f61da47a1622892edb8e0edb2dedd0b2727196690e95b962c3dd2b",
+  "wall_seconds": 37.666,
+  "real_docker": true,
+  "global_slots": 4,
+  "parallel_workers": 4,
+  "external_slot_interference_verified": true,
+  "synthetic_finalists": 6,
+  "examples_per_finalist": 2,
+  "completed_examples_preserved": 6,
+  "completed_candidate_byte_exact": true,
+  "same_sealed_batch": true,
+  "check_only_read_only": true,
+  "public_score": 1.0,
+  "model_calls": 0,
+  "live_campaign_changed": false
+}

@@ -1,0 +1,417 @@
+{
+  "schema_version": 1,
+  "source": "artifacts/sc-71-candidates",
+  "copy_root": "original",
+  "file_count": 136,
+  "excluded_files": [],
+  "files": [
+    {
+      "path": "METHODOLOGY.md"
+    },
+    {
+      "path": "README.md"
+    },
+    {
+      "path": "adapters/arena/README.md"
+    },
+    {
+      "path": "adapters/arena/prepare.py"
+    },
+    {
+      "path": "adapters/arena/prompt.md"
+    },
+    {
+      "path": "adapters/arena/runtime.py"
+    },
+    {
+      "path": "candidates/amendment_bm25/README.md"
+    },
+    {
+      "path": "candidates/amendment_bm25/RESEARCH.md"
+    },
+    {
+      "path": "candidates/amendment_bm25/baseline.py"
+    },
+    {
+      "path": "candidates/amendment_bm25/build.py"
+    },
+    {
+      "path": "candidates/amendment_bm25/candidate.json"
+    },
+    {
+      "path": "candidates/amendment_bm25/candidate.py"
+    },
+    {
+      "path": "candidates/amendment_bm25/catalog.py"
+    },
+    {
+      "path": "candidates/amendment_bm25/common.py"
+    },
+    {
+      "path": "candidates/amendment_bm25/examples/README.md"
+    },
+    {
+      "path": "candidates/amendment_bm25/examples/norm/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa.md"
+    },
+    {
+      "path": "candidates/amendment_bm25/examples/norm/bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb.md"
+    },
+    {
+      "path": "candidates/amendment_bm25/examples/norm/cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc.md"
+    },
+    {
+      "path": "candidates/amendment_bm25/examples/question.txt"
+    },
+    {
+      "path": "candidates/amendment_bm25/lexical.py"
+    },
+    {
+      "path": "candidates/amendment_bm25/pyrightconfig.json"
+    },
+    {
+      "path": "candidates/amendment_bm25/relations.py"
+    },
+    {
+      "path": "candidates/amendment_bm25/requirements-dev.txt"
+    },
+    {
+      "path": "candidates/amendment_bm25/requirements.lock"
+    },
+    {
+      "path": "candidates/amendment_bm25/run.py"
+    },
+    {
+      "path": "candidates/amendment_bm25/runtime.py"
+    },
+    {
+      "path": "candidates/amendment_bm25/settings.json"
+    },
+    {
+      "path": "candidates/amendment_bm25/structure.py"
+    },
+    {
+      "path": "candidates/amendment_bm25/tests/test_amendments.py"
+    },
+    {
+      "path": "candidates/bm25_sections/README.md"
+    },
+    {
+      "path": "candidates/bm25_sections/build.py"
+    },
+    {
+      "path": "candidates/bm25_sections/candidate.json"
+    },
+    {
+      "path": "candidates/bm25_sections/candidate.py"
+    },
+    {
+      "path": "candidates/bm25_sections/requirements-local.txt"
+    },
+    {
+      "path": "candidates/bm25_sections/requirements.lock"
+    },
+    {
+      "path": "candidates/bm25_sections/run.py"
+    },
+    {
+      "path": "candidates/bm25_sections/sc71.py"
+    },
+    {
+      "path": "candidates/bm25_sections/settings.json"
+    },
+    {
+      "path": "candidates/file_agent/AGENT.md"
+    },
+    {
+      "path": "candidates/file_agent/README.md"
+    },
+    {
+      "path": "candidates/file_agent/RESEARCH.md"
+    },
+    {
+      "path": "candidates/file_agent/baseline.py"
+    },
+    {
+      "path": "candidates/file_agent/build.py"
+    },
+    {
+      "path": "candidates/file_agent/candidate.json"
+    },
+    {
+      "path": "candidates/file_agent/candidate.py"
+    },
+    {
+      "path": "candidates/file_agent/catalog.py"
+    },
+    {
+      "path": "candidates/file_agent/common.py"
+    },
+    {
+      "path": "candidates/file_agent/examples/README.md"
+    },
+    {
+      "path": "candidates/file_agent/examples/norm/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa.md"
+    },
+    {
+      "path": "candidates/file_agent/examples/norm/bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb.md"
+    },
+    {
+      "path": "candidates/file_agent/examples/norm/cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc.md"
+    },
+    {
+      "path": "candidates/file_agent/examples/question.txt"
+    },
+    {
+      "path": "candidates/file_agent/lexical.py"
+    },
+    {
+      "path": "candidates/file_agent/pyrightconfig.json"
+    },
+    {
+      "path": "candidates/file_agent/requirements-dev.txt"
+    },
+    {
+      "path": "candidates/file_agent/requirements.lock"
+    },
+    {
+      "path": "candidates/file_agent/run.py"
+    },
+    {
+      "path": "candidates/file_agent/runtime.py"
+    },
+    {
+      "path": "candidates/file_agent/settings.json"
+    },
+    {
+      "path": "candidates/file_agent/structure.py"
+    },
+    {
+      "path": "candidates/file_agent/tests/test_file_agent.py"
+    },
+    {
+      "path": "candidates/file_agent/tests/test_new_runtime.py"
+    },
+    {
+      "path": "candidates/file_agent/verify.py"
+    },
+    {
+      "path": "candidates/hybrid_bge/README.md"
+    },
+    {
+      "path": "candidates/hybrid_bge/build.py"
+    },
+    {
+      "path": "candidates/hybrid_bge/candidate.json"
+    },
+    {
+      "path": "candidates/hybrid_bge/candidate.py"
+    },
+    {
+      "path": "candidates/hybrid_bge/requirements-local.txt"
+    },
+    {
+      "path": "candidates/hybrid_bge/requirements.lock"
+    },
+    {
+      "path": "candidates/hybrid_bge/run.py"
+    },
+    {
+      "path": "candidates/hybrid_bge/sc71.py"
+    },
+    {
+      "path": "candidates/hybrid_bge/settings.json"
+    },
+    {
+      "path": "candidates/linked_hybrid/README.md"
+    },
+    {
+      "path": "candidates/linked_hybrid/build.py"
+    },
+    {
+      "path": "candidates/linked_hybrid/candidate.json"
+    },
+    {
+      "path": "candidates/linked_hybrid/candidate.py"
+    },
+    {
+      "path": "candidates/linked_hybrid/requirements-local.txt"
+    },
+    {
+      "path": "candidates/linked_hybrid/requirements.lock"
+    },
+    {
+      "path": "candidates/linked_hybrid/run.py"
+    },
+    {
+      "path": "candidates/linked_hybrid/sc71.py"
+    },
+    {
+      "path": "candidates/linked_hybrid/settings.json"
+    },
+    {
+      "path": "candidates/planned_bm25/README.md"
+    },
+    {
+      "path": "candidates/planned_bm25/RESEARCH.md"
+    },
+    {
+      "path": "candidates/planned_bm25/baseline.py"
+    },
+    {
+      "path": "candidates/planned_bm25/build.py"
+    },
+    {
+      "path": "candidates/planned_bm25/candidate.json"
+    },
+    {
+      "path": "candidates/planned_bm25/candidate.py"
+    },
+    {
+      "path": "candidates/planned_bm25/common.py"
+    },
+    {
+      "path": "candidates/planned_bm25/examples/norm/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa.md"
+    },
+    {
+      "path": "candidates/planned_bm25/examples/norm/bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb.md"
+    },
+    {
+      "path": "candidates/planned_bm25/examples/norm/cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc.md"
+    },
+    {
+      "path": "candidates/planned_bm25/examples/question.txt"
+    },
+    {
+      "path": "candidates/planned_bm25/examples/synthetic-plan.json"
+    },
+    {
+      "path": "candidates/planned_bm25/pyrightconfig.json"
+    },
+    {
+      "path": "candidates/planned_bm25/requirements-dev.txt"
+    },
+    {
+      "path": "candidates/planned_bm25/requirements.lock"
+    },
+    {
+      "path": "candidates/planned_bm25/run.py"
+    },
+    {
+      "path": "candidates/planned_bm25/settings.json"
+    },
+    {
+      "path": "candidates/planned_bm25/settings.single-query-control.json"
+    },
+    {
+      "path": "candidates/planned_bm25/tests/test_planned_candidate.py"
+    },
+    {
+      "path": "candidates/planned_bm25/tests/test_planned_runtime.py"
+    },
+    {
+      "path": "candidates/structure_bm25/README.md"
+    },
+    {
+      "path": "candidates/structure_bm25/RESEARCH.md"
+    },
+    {
+      "path": "candidates/structure_bm25/baseline.py"
+    },
+    {
+      "path": "candidates/structure_bm25/build.py"
+    },
+    {
+      "path": "candidates/structure_bm25/candidate.json"
+    },
+    {
+      "path": "candidates/structure_bm25/candidate.py"
+    },
+    {
+      "path": "candidates/structure_bm25/common.py"
+    },
+    {
+      "path": "candidates/structure_bm25/examples/norm/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa.md"
+    },
+    {
+      "path": "candidates/structure_bm25/examples/norm/bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb.md"
+    },
+    {
+      "path": "candidates/structure_bm25/examples/norm/cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc.md"
+    },
+    {
+      "path": "candidates/structure_bm25/examples/question.txt"
+    },
+    {
+      "path": "candidates/structure_bm25/pyrightconfig.json"
+    },
+    {
+      "path": "candidates/structure_bm25/requirements-dev.txt"
+    },
+    {
+      "path": "candidates/structure_bm25/requirements.lock"
+    },
+    {
+      "path": "candidates/structure_bm25/run.py"
+    },
+    {
+      "path": "candidates/structure_bm25/settings.json"
+    },
+    {
+      "path": "candidates/structure_bm25/structure.py"
+    },
+    {
+      "path": "candidates/structure_bm25/tests/test_structure_candidate.py"
+    },
+    {
+      "path": "candidates/structure_bm25/tests/test_structure_runtime.py"
+    },
+    {
+      "path": "candidates/structure_bm25/verify.py"
+    },
+    {
+      "path": "retrieval/__init__.py"
+    },
+    {
+      "path": "retrieval/api.py"
+    },
+    {
+      "path": "retrieval/chunking.py"
+    },
+    {
+      "path": "retrieval/common.py"
+    },
+    {
+      "path": "retrieval/config.py"
+    },
+    {
+      "path": "retrieval/documents.py"
+    },
+    {
+      "path": "retrieval/embeddings.py"
+    },
+    {
+      "path": "retrieval/runtime.py"
+    },
+    {
+      "path": "retrieval/search.py"
+    },
+    {
+      "path": "retrieval/storage.py"
+    },
+    {
+      "path": "retrieval/structural.py"
+    },
+    {
+      "path": "retrieval/tests/test_embeddings.py"
+    },
+    {
+      "path": "retrieval/tests/test_storage.py"
+    },
+    {
+      "path": "scripts/export.py"
+    },
+    {
+      "path": "scripts/prepare.py"
+    }
+  ]
+}

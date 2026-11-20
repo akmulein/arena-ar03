@@ -1,0 +1,116 @@
+# RPD — карта проекта Arena
+
+Читай перед любой задачей. Карта помогает выбрать исходники и правила для работы; подробные контракты принадлежат документам по ссылкам. При изменении структуры или точек входа обновляй карту по фактическим файлам.
+
+## Первое чтение
+
+1. [README.md](README.md) — назначение арены, жизненный цикл кампании и границы данных.
+2. [AGENTS.md](AGENTS.md) и [common/IMMUNE.md](common/IMMUNE.md) — правила работы и согласованность изменений.
+3. Выбери маршрут ниже; для задачи конкретного кейса прочитай его README, для кампании — явно переданные условия и состояние.
+
+Перед подготовкой и поиском обязательно прочитай [каталог результатов подготовки](preparations/README.md) и доступный реестр `<campaign_dir>/preparations/README.md`: назначение публикаций, совместимость, происхождение и измеренные расходы.
+
+Arena — универсальный репозиторий для поиска и сравнения решений. Оркестрация задаётся промптами и протоколом; отдельного агентного движка и планировщика здесь нет. Решение и метрика могут обходиться без LLM. Условия кейса и кампании определяют, что разрешено менять, включая харнес и его параметры.
+
+## Маршруты по задачам
+
+| Задача | Что открыть |
+| --- | --- |
+| Создать кейс | [cases/template/README.md](cases/template/README.md), его [метрику](cases/template/metric/README.md), [описание данных](cases/template/dataset/README.md) и [уточнения промптов](cases/template/prompts/README.md) |
+| Подготовить кампанию | [prompts/prepare.md](prompts/prepare.md), [common/preparation.md](common/preparation.md), [common/public-evaluation.md](common/public-evaluation.md), [common/runner-contract.md](common/runner-contract.md) |
+| Запустить или продолжить поиск | [prompts/start.md](prompts/start.md), [prompts/orchestrator.md](prompts/orchestrator.md), [common/research-protocol.md](common/research-protocol.md), [common/orchestration.md](common/orchestration.md), [common/search-history.md](common/search-history.md), [common/long-runs.md](common/long-runs.md) |
+| Делегировать исследование или проверить кандидата | [prompts/researcher.md](prompts/researcher.md) или [prompts/reviewer.md](prompts/reviewer.md), [common/orchestration.md](common/orchestration.md); независимые направления — в отдельных worktree |
+| Отобрать и отправить финалистов | [prompts/finalists.md](prompts/finalists.md), [common/public-evaluation.md](common/public-evaluation.md), [common/isolation.md](common/isolation.md) |
+| Изменить оценку или ранжирование | [common/public-evaluation.md](common/public-evaluation.md), [common/preparation.md](common/preparation.md), пакет метрики кейса и группа оценки в карте кода ниже |
+| Подключить харнес, подготовку или материалы | [common/runner-contract.md](common/runner-contract.md), [runner/README.md](runner/README.md), [deploy/README.md](deploy/README.md) |
+| Изменить сервисы или развёртывание | [deploy/README.md](deploy/README.md), [common/isolation.md](common/isolation.md), затем инструкции `deploy/` конкретного кейса |
+| Изменить историю, ресурсы или трекинг | [common/search-history.md](common/search-history.md), [common/mlflow.md](common/mlflow.md), [common/isolation.md](common/isolation.md) |
+
+Подготовка и поиск — отдельные запуски по команде пользователя. Поиск проверяет готовность; при пробелах сообщает о них и завершает работу, не запускает подготовку автоматически. [prompts/prepare-reference.md](prompts/prepare-reference.md) нужен только для отдельной подготовки синтетического эталона подходящего LLM-профиля.
+
+## Карта кода
+
+| Область | Файлы и ответственность |
+| --- | --- |
+| Форматы и валидация | [evaluator/contracts.py](evaluator/contracts.py) — метрика, пример, кандидат, отправка; [response_schema.py](evaluator/response_schema.py) — структурированный ответ; [numeric.py](evaluator/numeric.py) — допустимые числовые оценки |
+| Пакет метрики | [metric_package.py](evaluator/metric_package.py) — состав, исполняемость файлов, переносимость и загрузка; [prepare.py](evaluator/prepare.py) — CLI `freeze`/`verify` |
+| Вычисление оценки | [metrics.py](evaluator/metrics.py) — профили `command`/`llm`, оценка ответа и агрегация; [judge.py](evaluator/judge.py) — модельный клиент, голоса встроенного судьи и запись его попыток для train-трейсов; [ranking.py](evaluator/ranking.py) — выбор победителей с учётом направления и ресурсов |
+| Закрытое оценивание | [service.py](evaluator/service.py) — public/private API, допуск, неизменяемые условия, параллельные примеры и состояние серии; [checkpoints.py](evaluator/checkpoints.py) — отдельные стадии примеров и компактная опись; [__main__.py](evaluator/__main__.py) — запуск через `python -m evaluator`; [pause.py](evaluator/pause.py) — операторская пауза private после сохранения активных примеров; [resume.py](evaluator/resume.py) — продолжение того же private-пакета из проверенного сохранённого состояния |
+| Открытые замеры и отправка | [train.py](evaluator/train.py) — train API, поднаборы, ответы, трейсы и связь с журналом; [client.py](evaluator/client.py) — упаковка кандидатов, `search-readiness`, `submit`, `status` и ожидание public/private через `wait` |
+| Событийное ожидание | [wait.py](evaluator/wait.py) — Linux wait-any по PID уже запущенных процессов; возвращает событие завершения, результат проверки читается отдельно |
+| История поиска | [search.py](evaluator/search.py) — SQLite-журнал, единая S-нумерация, допуск зарегистрированных снимков, родословная, остановка и public-only AUC по порядку предложений; [research_usage.py](evaluator/research_usage.py) — атрибуция реальных исследовательских run/request ID, общие и нераспределённые расходы; процессы не запускает |
+| Продолжение исследования | [research.py](evaluator/research.py) — общий контроль завершения ходов, переход к альтернативам и финализация с private или без него; принимает адаптер агента и не зависит от кейса или Hermes |
+| Исполнение кандидата | [execution.py](evaluator/execution.py) — сборка runner из операторских настроек и метаданные выбранного решателя; [evaluator/runner.py](evaluator/runner.py) — реестр харнесов, контейнер, mounts и измерение; [runner/main.py](runner/main.py) — комплектный адаптер внутри контейнера |
+| Модель и надёжность | [gateway.py](evaluator/gateway.py) — фиксированная модель, scoped-доступ, tools, схемы, повторы и учёт; [reliability.py](evaluator/reliability.py) — общие правила повторов и таймаутов; [capacity.py](evaluator/capacity.py) — общий пул слотов для примеров, агрегации и build, отдельно от лимита предложений |
+| Материалы и подготовка | [assets.py](evaluator/assets.py) — неизменяемые публикации; [build.py](evaluator/build.py) — измеряемая подготовка и зависимости; [build_receipts.py](evaluator/build_receipts.py) — доверенные квитанции и их проверка |
+| Снимки и файловые границы | [candidates.py](evaluator/candidates.py), [filesystem.py](evaluator/filesystem.py) — безопасные пути, digest, executable-права, восстановление и обход без симлинков |
+| Ресурсы и наблюдаемость | [usage.py](evaluator/usage.py) — доверенные счётчики; [trace_store.py](evaluator/trace_store.py) — модельные вызовы; [tracking.py](evaluator/tracking.py) — компактные квитанции, очередь и необязательный экспорт в MLflow; [tracking_stream.py](evaluator/tracking_stream.py) — потоковое чтение и разделение больших записей; [tracking_artifacts.py](evaluator/tracking_artifacts.py) — передача крупных JSON частями и потоковое восстановление файла |
+
+Типичный путь решения: `train.py` или `service.py` → `execution.py` → `evaluator/runner.py` → адаптер харнеса → ответ → `metrics.py`. Модельный решатель обращается через gateway; оценщик имеет отдельный учёт расходов. Комплектный адаптер поддерживает `solve.py` либо `prompt.md` с необязательным `prepare.py`; сторонние харнесы соблюдают общий протокол.
+
+Build и выбор опубликованных материалов — отдельные возможности, явно включаемые оператором. `assets.py` фиксирует содержимое; измерение создания материалов и квитанции принадлежат build. Обычная задача не требует этих возможностей, базы знаний или MLflow.
+
+## Кейсы, кампании и инфраструктура
+
+| Путь | Что здесь искать |
+| --- | --- |
+| [cases/template/](cases/template/README.md) | Основа нового кейса: задача, данные, метрика, примеры решений и модельных метрик |
+| [preparations/](preparations/README.md) | Правила общего каталога подготовки и шаблон рабочего реестра публикаций, квитанций и проверок чтения |
+| [cases/sc35/](cases/sc35/README.md), [кампания sc35-first-20261028](cases/sc35/campaigns/sc35-first-20261028/README.md) | Проверка ПМИ по ЕСПД и типографике, детерминированная span-метрика и отдельная подготовка GPU6/Hermes; готовность фиксирует отчёт кампании |
+| [cases/sc71/](cases/sc71/README.md) | Пакет SC-71; его доменные правила и настройки не переносятся в общее ядро |
+| [cases/sc71/campaigns/sc71-second-20261024/](cases/sc71/campaigns/sc71-second-20261024/README.md) | Подготовленный второй запуск SC-71, отдельное развёртывание и свидетельства готовности; выбор кампании задаёт пользователь |
+| [cases/sc71/harness/hermes/](cases/sc71/harness/hermes/README.md) | Адаптер входа SC71, профиль зафиксированной модели и подключение общей интеграции Hermes |
+| [cases/sc71/metric/](cases/sc71/metric/README.md), [tools/assets.md](cases/sc71/tools/assets.md) | Метрика SC-71 и инструменты подготовки материалов |
+| [cases/sc71/acceptance/](cases/sc71/acceptance/README.md), [deploy/gpu6/](cases/sc71/deploy/gpu6/README.md) | Приёмка кейса и операторская инфраструктура целевого узла |
+| [cases/sc71/proposals/](cases/sc71/proposals/README.md) | Исходные идеи; `original/` — архив, не журнал зарегистрированных решений |
+| `<campaign_dir>/` | Явно выбранная рабочая память кампании; расположение каталога само по себе не задаёт условия и не открывает новую private-серию |
+| `cases/<case>/ways/`, `cases/<case>/results/` | Решения и результаты проверок; состав конкретного пакета уточняет README кейса |
+| [archive/](archive/README.md) | Исторические отчёты разработки, свидетельства кейсов и локальные материалы; не входят в стартовый контекст |
+| [Dockerfile](Dockerfile), [compose.yaml](compose.yaml), [deploy/README.md](deploy/README.md) | Общие образы и доверенный запуск; [runner/Dockerfile](runner/Dockerfile) — отдельный образ комплектного runner |
+| [deploy/mlflow/](deploy/mlflow/README.md) | Общий nginx proxy операторского MLflow, параметры сервера, дисковый TMPDIR экспортёра и контейнерные проверки транспорта и полного экспорта крупных записей |
+| [integrations/docker/](integrations/docker/README.md) | Необязательный монитор исследовательского контейнера; поиск не запускает и не возобновляет |
+| [integrations/hermes/](integrations/hermes/README.md) | Необязательная общая интеграция Hermes: параметризованный runtime, fresh/fork, исправление формата, отдельная диагностика, настройки делегирования, проверка интернет-поиска, launcher и образ без зависимости от кейсов |
+
+В `<campaign_dir>`: `campaign.md` задаёт условия, `preparation.md` хранит свидетельства готовности, `board/claims/` и `board/findings/` — гипотезы и результаты, `board/reviews/` — допуск точных снимков и материалов, журнал — все версии и измерения, `selection.md` — основания отбора. Все worktree используют один абсолютный путь к состоянию и журналу. Не выбирай кампанию автоматически по имени или дате каталога.
+
+## Границы, важные до изменений
+
+- Зафиксированные модель, метрика, эталоны, split и условия кампании неизменяемы. `freeze`/`verify` проверяют формат, состав и исполняемость файлов пакета, но не смысл метрики и не готовность сервера.
+- При новой подготовке `freeze` явно включает `aggregation_input=report`, если вход агрегатора не задан: это общий default для любого кейса. Явный `details` сохраняется. Старые frozen-пакеты и standalone-конфигурации без поля продолжают работать с прежним контрактом; готовый пакет повторно не замораживается.
+- Любой раздел может быть пустым; его оценивание пропускается. Train открыт; исследователь получает от public только общий score, от private — только статус. Закрытые данные и результаты читает оператор внутри закрытого контура; документационный обзор не даёт допуска к ним. Секреты и закрытые данные не попадают в Git, образы и общий MLflow.
+- Общий MLflow принимает только train. Public-score доступен через API оценщика; public/private в MLflow направляются только отдельному закрытому операторскому получателю. Квитанция доставки отделена от тяжёлого артефакта и не означает завершение вычисления.
+- Все модельные обращения с данными идут к внутренним моделям. Если решатель и судья используют LLM, модель одна. На пример сохраняется один корректный ответ; технический повтор не позволяет выбирать лучший ответ.
+- Лимит предложенных решений, число финалистов K и число итоговых решений N — разные настройки. Неудачная версия расходует предложение. Агент не открывает новый private-допуск переименованием. Пользователь может назначить отдельную серию на тех же данных с сохранением прежней истории по [правилам изоляции](common/isolation.md).
+- При непустом private поисковой кампании нужен его сервис в режиме `campaign` с каноническим журналом и лимитом предложенных решений; перед стартом проверяют живой `search-readiness`. При пустом private сервис и отправка не нужны, итоговый выбор сохраняется по условиям кампании и доступным свидетельствам. `finalize` закрывает поиск и сохраняет предварительный пакет, `--replace` исправляет выбор из зарегистрированных снимков. Необратимо принимает пакет private-сервис после проверок допуска. Режим `standalone` предназначен для отдельного оценщика вне поиска.
+- При достижении лимита предложенных решений новые предложения запрещены, плановые проверки зарегистрированных кандидатов продолжаются. По команде человека остановить поиск запрещены и новые проверки: дожидаются только выполняющихся, отбор использует накопленные свидетельства.
+- Ресурсы решателя включают подготовку и повторы; ресурсы оценщика хранятся отдельно. Неизвестный расход не равен нулю. Ранжирование и AUC меняются только вместе с их контрактами и проверками.
+- Любой замер кандидата требует предварительной регистрации точного снимка. `solution_id` выдаёт журнал по порядку предложений. AUC использует только public, все предложения до лимита и не требует baseline; пробелы дают неполный результат, а не выдуманный score. Исследовательские расходы связываются с реальными вызовами отдельно от расходов исполнения решения.
+- Train/public/private используют общие слоты для параллельных примеров; один кандидат может занять несколько слотов. Перед техническим перезапуском private оператор запрашивает `evaluator.pause` и дожидается внутреннего `paused`: активные примеры и их измерения сохраняются. Продолжение через `evaluator.resume` проверяет сохранённые стадии, включая завершившиеся не по порядку, и не повторяет готовые ответы. Сохранённый `solved` допускает запуск ещё не начатого судейства; неизвестный прогресс не повторяется автоматически. API исследователя во время паузы возвращает `running`.
+- Без задания на эксперимент и зафиксированного числа решений реальные модели не запускаются. Документационная или кодовая задача сама по себе не запускает кампанию.
+
+## Окружение и проверки
+
+Python ≥ 3.12; зависимости и настройки инструментов — [pyproject.toml](pyproject.toml), версии — [uv.lock](uv.lock). Установка: `uv sync --frozen`. MLflow подключается отдельно через extra `tracking`.
+
+Перед передачей изменений:
+
+```bash
+uv run ruff check .
+uv run pyright
+uv run pytest
+uv run python -m evaluator.smoke
+```
+
+Основные модульные проверки лежат в [tests/](tests/); обычно `evaluator/<module>.py` соответствует `tests/test_<module>.py`. Контейнер и адаптер дополнительно покрыты `test_runner_main.py`, `test_runner_assets.py`, `test_runner_builds.py`, `test_runner_build_entrypoint.py`; совместная работа оценки — `test_integration.py`, командные модельные метрики — `test_metric_model.py`.
+
+Корневой pytest собирает только `tests/`, pyright проверяет `evaluator`, `runner`, `integrations`, `tests`. Для кейса запускай его проверки отдельно по README. Для SC-71: `uv run pytest cases/sc71/tests` и `uv run pyright -p cases/sc71/pyrightconfig.json`.
+
+Общие проверки Hermes находятся в `tests/test_hermes_*.py`, а контроль поиска — в `tests/test_research.py`. При изменении интеграции дополнительно проверь её общий образ без `cases/` и `python -m integrations.hermes.mock_check --model alternate-synthetic-model` в окружении закреплённого Hermes: это подставной локальный gateway, без реальных моделей. Кейсовые проверки отвечают за подключение профиля и формат входа.
+
+Общие тесты и smoke используют синтетические входы и подставные ответы без реальных моделей и кампаний. [tests/docker_smoke.py](tests/docker_smoke.py) — отдельная контейнерная проверка с подставным upstream; она не заменяет приёмку нового образа на целевом узле.
+
+При изменении параллельного private, паузы или продолжения дополнительно выполняйте [tests/docker_private_parallel_smoke.py](tests/docker_private_parallel_smoke.py): настоящие HTTP-сервисы и DockerRunner, общий пул слотов, сохранение готовых ответов и того же пакета. Требования к образу и общему рабочему каталогу — в [инструкции приёмки](deploy/README.md#контейнерная-приёмка-параллельного-private). Реальные модели и кампании эта проверка не использует.
+
+При изменении MLflow proxy дополнительно выполняйте `uv run python tests/mlflow_proxy_smoke.py`: настоящий nginx с ограниченной памятью и синтетические потоки, без MLflow и модельных вызовов. Подключение общего конфига всеми Compose проверяет `tests/test_mlflow_deploy.py` в обычном pytest.
+
+При изменении экспортёра или сервера MLflow дополнительно выполняйте `uv run python tests/mlflow_export_smoke.py`: настоящий MLflow и nginx с ограниченной памятью, синтетические совокупная запись и отдельный вызов больше 256 MiB, полное восстановление артефактов и повтор доставки. Требования к Docker, образам и дисковому TMPDIR — в [deploy/mlflow/README.md](deploy/mlflow/README.md). Реальные модели, датасеты и кампании эта проверка не использует.

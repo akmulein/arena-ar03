@@ -1,0 +1,17 @@
+{
+  "status": "ok",
+  "image": "arena-private-parallel:review-20261110",
+  "image_id": "sha256:ec9cef9f08e1b9d296dc03a97c4b7cecab995940fb9abbb9843fd27201bb101c",
+  "wall_seconds": 18.947,
+  "global_slots": 4,
+  "parallel_workers": 4,
+  "finalists": 6,
+  "examples_per_finalist": 3,
+  "single_candidate_parallel_examples": 3,
+  "out_of_order_example_checkpoint": true,
+  "completed_examples_preserved": 13,
+  "completed_candidate_byte_exact": true,
+  "same_sealed_batch": true,
+  "public_score": 1.0,
+  "model_calls": 0
+}

@@ -1,0 +1,33 @@
+{
+  "stage": "parallel_private_verified",
+  "utc": "2026-11-03T12:15:21Z",
+  "global_locked_slots": 4,
+  "preserved_examples": 246,
+  "interrupted_attempts_preserved": 1,
+  "saved_ledgers_byte_exact": true,
+  "active_private_candidates": 4,
+  "new_private_id": "ab8ad4e598ea3ad91fbb299ed5862317aa830b4f2d77b3ddca0943ad9b9c0764",
+  "worker_id": "78b814c392d706495dbcb57da4b0bfdc317287aeb2451f8a576ff29428bf4b86",
+  "worker_memory": 25769803776,
+  "private_image": "sha256:bf660f0fa9f61da47a1622892edb8e0edb2dedd0b2727196690e95b962c3dd2b",
+  "private_memory": 25769803776,
+  "worker_image": "sha256:bf660f0fa9f61da47a1622892edb8e0edb2dedd0b2727196690e95b962c3dd2b",
+  "frozen_selected_runner_images": [
+    "sha256:667d57cec8bae50acedd8d6137bfefa64a8d5c04e692c83525d7df60df610f26"
+  ],
+  "other_services_unchanged": [
+    "arena-sc35-first-researcher-resume-20261031",
+    "arena-sc35-first-train-evaluator-1",
+    "arena-sc35-first-public-evaluator-1",
+    "arena-sc35-first-model-gateway-1",
+    "arena-sc35-first-researcher-gateway-1",
+    "arena-sc35-first-research-monitor-1",
+    "arena-sc35-first-internet-proxy-1",
+    "sc35-first-mlflow-shared-tracking-1",
+    "sc35-first-mlflow-operator-tracking-1"
+  ],
+  "outer_resumed": true,
+  "batch_digest": "a57755971c69eb3fbaff6784c51cf624647b843ee62bfdc6f1792b160e2c9740",
+  "finalists": 10,
+  "output_count": 3
+}
